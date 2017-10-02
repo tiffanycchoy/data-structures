@@ -1,19 +1,29 @@
 var Queue = function() {
-  var someInstance = {};
+	var someInstance = {};
+	var storage = {};
+	var firstIndex = 0;
+	var lastIndex = 0;
 
-  // Use an object with numeric keys to store values
-  var storage = {};
+	someInstance.enqueue = function(value) {
+		storage[lastIndex] = value;
+		lastIndex++
+	};
 
-  // Implement the methods below
+	someInstance.dequeue = function() {
+    var dequeueValue;
+		if (lastIndex !== firstIndex) {
+			dequeueValue = storage[firstIndex]
+			delete storage[firstIndex];
+			firstIndex += 1;
+			return dequeueValue;
+		}
+	};
 
-  someInstance.enqueue = function(value) {
-  };
+	someInstance.size = function() {
+		return lastIndex - firstIndex;
+	};
 
-  someInstance.dequeue = function() {
-  };
-
-  someInstance.size = function() {
-  };
-
-  return someInstance;
+	return someInstance;
 };
+
+module.exports = Queue;
