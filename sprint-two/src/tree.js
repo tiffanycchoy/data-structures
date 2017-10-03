@@ -1,19 +1,29 @@
 var Tree = function(value) {
-  var newTree = {};
-  newTree.value = value;
-
-  // your code here
-  newTree.children = null;  // fix me
-
-  return newTree;
+  this.value = value;
+  this.children = [];
 };
 
-var treeMethods = {};
-
-treeMethods.addChild = function(value) {
+Tree.prototype.addChild = function(value) {
+  var myTree = new Tree(value);
+  this.children.push(myTree);
 };
 
-treeMethods.contains = function(target) {
+Tree.prototype.contains = function(target) {
+
+  //base case
+  if (this.value === target) {
+    return true;
+  }
+
+  //recurse on children array
+  if (this.children.length > 0) {
+    for (var i = 0; i < this.children.length; i++) {
+      if (this.children[i].contains(target)) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 
