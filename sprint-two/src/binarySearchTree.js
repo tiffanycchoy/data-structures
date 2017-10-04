@@ -50,6 +50,30 @@ BinarySearchTree.prototype.depthFirstLog = function(cb) {
   }
 }
 
+BinarySearchTree.prototype.breathFirstLog = function(cb) {
+  var queue = [];
+
+  //if the tree is empty
+  if (this === null) {
+    return;
+  }
+
+  //push the tree to the queue
+  queue.push(this);
+
+  //while the queue is not empty
+  while (queue.length > 0) {
+    if (queue[0].left) {
+      queue.push(queue[0].left);
+    }
+    if (queue[0].right) {
+      queue.push(queue[0].right);
+    }
+    cb(queue[0].value);
+    queue.shift();
+  }
+}
+
 
 /*
  * Complexity: What is the time complexity of the above functions?
