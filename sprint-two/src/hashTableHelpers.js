@@ -57,3 +57,8 @@ var getIndexBelowMaxForKey = function(str, max) {
 /*
  * Complexity: What is the time complexity of the above functions?
  */
+
+module.exports = {
+  LimitedArray: LimitedArray,
+  getIndexBelowMaxForKey: getIndexBelowMaxForKey
+};

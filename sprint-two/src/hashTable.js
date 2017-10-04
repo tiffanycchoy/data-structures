@@ -1,34 +1,47 @@
+var hashTableHelpers = require('./hashTableHelpers.js');
+var getIndexBelowMaxForKey = hashTableHelpers.getIndexBelowMaxForKey;
+var LimitedArray = hashTableHelpers.LimitedArray;
+
 var HashTable = function() {
   this._limit = 8;
   this._storage = LimitedArray(this._limit);
+  this._size = 0;
 };
 
 HashTable.prototype.insert = function(k, v) {
   var index = getIndexBelowMaxForKey(k, this._limit);
-  var exists = false;
-  // if the index does not contain touples, create an array w/ touples
-  if (!this._storage.get(index)) {
-    this._storage.set(index, [[k,v]]);
-  } else {
-    //iterate through array to overwrite an existing matching key
-    for (var i = 0; i < this._storage.get(index).length; i++) {
-      if (this._storage.get(index)[i][0] === k) {
-        this._storage.get(index)[i] = [k,v];
-        exists = true;
-      }
+
+  var bucket = this._storage.get(index) || [];
+
+  //iterate through bucket.  overwrite an existing key/value pair if the key exists
+  for (var i = 0; i < bucket.length; i++) {
+    var touple = bucket[i];
+    if (touple[0] === k) {
+      touple[1] = v;
+      return;
     }
-    //if key does not exist, add it to the array
-    if (!exists) {
-      this._storage.get(index).push([k,v]);
-    }
+  }
+
+  //otherwise push the new key/value pair into the bucket.
+  bucket.push([k, v]);
+  this._storage.set(index, bucket);
+  this._size++;
+
+  //check the size of the hashtable for re-sizing.
+  if (this._size >= 0.75 * this._limit) {
+    this.resize(this._limit * 2);
   }
 };
 
 HashTable.prototype.retrieve = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
-  for (var i = 0; i < this._storage.get(index).length; i++) {
-    if (this._storage.get(index)[i][0] === k) {
-      return this._storage.get(index)[i][1];
+
+  var bucket = this._storage.get(index) || [];
+
+  for (var i = 0; i < bucket.length; i++) {
+    var touple = bucket[i];
+    if (touple[0] === k) {
+      return touple[1];
     }
   }
   return undefined;
@@ -36,15 +49,53 @@ HashTable.prototype.retrieve = function(k) {
 
 HashTable.prototype.remove = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
-  var removeValue;
-  for (var i = 0; i < this._storage.get(index).length; i++) {
-    if (this._storage.get(index)[i][0] === k) {
-      removeValue = this._storage.get(index)[i];
-      this._storage.get(index).splice(i,1);
+
+  var bucket = this._storage.get(index);
+
+  for (var i = 0; i < bucket.length; i++) {
+    var touple = bucket[i]
+    if (touple[0] === k) {
+      bucket.splice(i, 1);
+      this._size--;
+      //check the size of the hashtable for re-sizing.
+      if (this._size < 0.25 * this._limit) {
+        this.resize(Math.floor(this._limit / 2));
+      }
+      return touple[1];
     }
   }
-  return removeValue;
+  return undefined;
 };
+
+
+HashTable.prototype.resize = function(newLimit) {
+  debugger
+  var context = this;
+  var oldStorage = this._storage;
+
+  // the minimum limit is 8
+  newLimit = Math.max(newLimit, 8);
+
+  if (newLimit === this._limit) {
+    return;
+  }
+
+  this._limit = newLimit;
+  this._size = 0;
+  this._storage = LimitedArray(this._limit);
+
+  oldStorage.each(function(bucket, index) {
+    if (!bucket) {
+      return undefined;
+    }
+    for (var i = 0; i < bucket.length; i++) {
+      context.insert(bucket[i][0], bucket[i][1]);
+    }
+  });
+
+}
+
+module.exports = HashTable;
 
 
 /*
