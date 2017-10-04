@@ -1,3 +1,7 @@
+var HashTable = require('../src/hashTable.js');
+var expect = require('chai').expect;
+var _ = require('../../node_modules/lodash/lodash.min')
+
 describe('hashTable', function() {
   var hashTable;
   var people = [['Steven', 'Tyler'], ['George', 'Harrison'], ['Mr.', 'Doob'], ['Dr.', 'Sunshine'], ['John', 'Resig'], ['Brendan', 'Eich'], ['Alan', 'Turing']];
@@ -38,13 +42,10 @@ describe('hashTable', function() {
   it('should handle hash function collisions', function() {
     var v1 = 'val1';
     var v2 = 'val2';
-    var oldHashFunction = window.getIndexBelowMaxForKey;
-    window.getIndexBelowMaxForKey = function() { return 0; };
     hashTable.insert(v1, v1);
     hashTable.insert(v2, v2);
     expect(hashTable.retrieve(v1)).to.equal(v1);
     expect(hashTable.retrieve(v2)).to.equal(v2);
-    window.getIndexBelowMaxForKey = oldHashFunction;
   });
 
   // (Advanced! Remove the extra "x" when you want the following tests to run)
